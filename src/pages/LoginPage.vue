@@ -83,22 +83,16 @@ export default {
   },
   methods: {
     async handleLogin() {
-      const scriptUrl = "/api";
+      const scriptUrl = import.meta.env.VITE_SCRIPT_URL || 'https://script.google.com/macros/s/AKfycb.../exec';
 
       try {
         console.log('Sending login request to:', scriptUrl);
         console.log('Email:', this.email);
-        console.log('Password:', this.password);
 
         const response = await fetch(scriptUrl, {
           method: 'POST',
-          body: JSON.stringify({
-            email: this.email,
-            password: this.password,
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: this.email, password: this.password }),
         });
 
         const result = await response.json();
@@ -109,7 +103,7 @@ export default {
           localStorage.setItem('auth_user', JSON.stringify(result.user));
           window.location.href = 'https://www.google.com';
         } else {
-          alert(result.message || 'Login gagal');
+          alert(result.message || 'Login gagal.');
         }
       } catch (err) {
         console.error('Login error:', err);
@@ -119,6 +113,7 @@ export default {
   },
 };
 </script>
+
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&display=swap');

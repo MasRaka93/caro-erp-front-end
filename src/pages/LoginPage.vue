@@ -73,6 +73,8 @@
 </template>
 
 <script>
+import UAParser from 'ua-parser-js';
+
 export default {
   name: 'LoginPage',
   data() {
@@ -81,37 +83,89 @@ export default {
       password: '',
     };
   },
+  mounted() {
+    this.checkAutoLogin();
+  },
   methods: {
-    async handleLogin() {
-      const scriptUrl = "/api/login";
+    async checkAutoLogin() {
+      const token = localStorage.getItem('auth_token');
+      if (!token) return;
+
+      const parser = new UAParser();
+      const ua = parser.getResult();
+      const device = `${ua.device.vendor || 'Unknown'} - ${ua.browser.name} ${ua.browser.version}`;
 
       try {
-        console.log("VITE_SCRIPT_URL:", import.meta.env.VITE_SCRIPT_URL);
-        console.log('Sending login request to:', scriptUrl);
-        console.log('Email:', this.email);
+        const response = await fetch(`${import.meta.env.VITE_SCRIPT_URL}?token=${token}&device=${encodeURIComponent(device)}`);
+        const result = await response.json();
+        console.log("Auto-login check:", result);
+
+        if (result.status === "valid") {
+          localStorage.setItem('auth_token', result.token);
+          localStorage.setItem('auth_user', JSON.stringify(result.user));
+          window.location.href = "/data-marketplace";
+        } else {
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('auth_user');
+        }
+      } catch (err) {
+        console.error("Auto-login check error:", err);
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('auth_user');
+      }
+    },
+
+    async handleLogin() {
+      const parser = new UAParser();
+      const ua = parser.getResult();
+      const device = `${ua.device.vendor || 'Unknown'} - ${ua.browser.name} ${ua.browser.version}`;
+
+      let ip = 'Unknown';
+      let location = 'Unknown';
+
+      try {
+        const ipRes = await fetch("https://ipapi.co/json");
+        const ipData = await ipRes.json();
+        ip = ipData.ip;
+        location = `${ipData.city}, ${ipData.region}, ${ipData.country_name}`;
+      } catch (err) {
+        console.warn("IP/Location fetch failed:", err);
+      }
+
+      const scriptUrl = import.meta.env.VITE_SCRIPT_URL;
+
+      try {
+        console.log("Sending login request to:", scriptUrl);
+        console.log("Email:", this.email);
 
         const response = await fetch(scriptUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: this.email, password: this.password }),
+          body: JSON.stringify({
+            email: this.email,
+            password: this.password,
+            device,
+            ip,
+            location,
+          }),
         });
 
         const result = await response.json();
-        console.log('Login result:', result);
+        console.log("Login result:", result);
 
         if (result.status === 'success') {
-          localStorage.setItem('auth_token', result.token || '');
+          localStorage.setItem('auth_token', result.token);
           localStorage.setItem('auth_user', JSON.stringify(result.user));
-          window.location.href = 'https://www.google.com';
+          window.location.href = "/data-marketplace";
         } else {
           alert(result.message || 'Login gagal.');
         }
       } catch (err) {
-        console.error('Login error:', err);
-        alert('Terjadi kesalahan saat login.');
+        console.error("Login error:", err);
+        alert("Terjadi kesalahan saat login.");
       }
-    },
-  },
+    }
+  }
 };
 </script>
 

@@ -83,7 +83,7 @@ export default {
   },
   methods: {
     async handleLogin() {
-      const scriptUrl = import.meta.env.VITE_SCRIPT_URL || 'https://script.google.com/macros/s/AKfycbyfAbXJN3UiQUWgdKCQxWB_BRhcwjuO0B7mzO2cfT_yNeX4WvzCo6GwUU_DbsVk-hiH/exec';
+      const scriptUrl = "/api/login";
 
       try {
         console.log("VITE_SCRIPT_URL:", import.meta.env.VITE_SCRIPT_URL);

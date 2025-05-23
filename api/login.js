@@ -1,4 +1,8 @@
 export default async function handler(req, res) {
+  console.log("Login API triggered");
+  console.log("Method:", req.method);
+  console.log("Body received:", req.body);
+  
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }

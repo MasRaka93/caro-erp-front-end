@@ -83,7 +83,7 @@ export default {
   },
   methods: {
     async handleLogin() {
-      const scriptUrl = import.meta.env.VITE_SCRIPT_URL;
+      const scriptUrl = "/api";
 
       try {
         console.log('Sending login request to:', scriptUrl);

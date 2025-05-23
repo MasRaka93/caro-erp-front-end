@@ -83,8 +83,7 @@ export default {
   },
   methods: {
     async handleLogin() {
-      const scriptUrl =
-        'https://script.google.com/macros/s/AKfycbyfAbXJN3UiQUWgdKCQxWB_BRhcwjuO0B7mzO2cfT_yNeX4WvzCo6GwUU_DbsVk-hiH/exec';
+      const scriptUrl = import.meta.env.VITE_SCRIPT_URL;
 
       try {
         console.log('Sending login request to:', scriptUrl);

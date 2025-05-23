@@ -86,6 +86,7 @@ export default {
       const scriptUrl = import.meta.env.VITE_SCRIPT_URL || 'https://script.google.com/macros/s/AKfycb.../exec';
 
       try {
+        console.log("VITE_SCRIPT_URL:", import.meta.env.VITE_SCRIPT_URL);
         console.log('Sending login request to:', scriptUrl);
         console.log('Email:', this.email);
 

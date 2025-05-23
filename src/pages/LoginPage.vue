@@ -30,7 +30,7 @@
 
         <form class="w-full flex flex-col gap-6" @submit.prevent="handleLogin">
           <div class="flex flex-col">
-            <label for="email" class="text-sm font-reguler mb-1"
+            <label for="email" class="text-sm font-medium mb-1"
               >Email / Username</label
             >
             <input
@@ -43,7 +43,7 @@
             />
           </div>
           <div class="flex flex-col">
-            <label for="password" class="text-sm font-reguler mb-1"
+            <label for="password" class="text-sm font-medium mb-1"
               >Password</label
             >
             <input

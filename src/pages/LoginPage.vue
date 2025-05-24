@@ -9,7 +9,8 @@
         <p class="text-lg mb-2">Selamat Datang,</p>
         <p class="text-lg mb-4">Aplikasi yang dibuat khusus untuk</p>
         <p class="font-extrabold text-xl md:text-2xl mb-12">Pnomsticklite.Corp</p>
-        <img src="https://i.imgur.com/pt08ud9.png" alt="CARO ERP Logo" class="w-[260px] h-[260px] md:w-[40px] md:h-[40px] mx-auto" />
+        <img src="https://i.imgur.com/pt08ud9.png" alt="CARO ERP Logo" class="w-[60px] h-[60px] md:w-[340px] md:h-[340px] mx-auto" />
+        <p class="font-extrabold text-xl md:text-2xl mb-12 mx-auto">caro.erp</p>
       </div>
 
       <!-- Right side -->

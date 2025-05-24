@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/api/logout",
+      "destination": "/api/logout.js"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/$1"
     },

@@ -131,35 +131,32 @@ onMounted(() => {
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Lexend&display=swap');
 
-#sidebar {
+body {
   font-family: 'Lexend', sans-serif;
-  width: 4rem;
+}
+
+#sidebar {
+  transition: width 0.3s ease;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.5rem;
+  background-color: #f3f4f6; /* Tailwind gray-100 */
+  height: 100vh;
 }
-#sidebar.open {
-  transform: translateX(0);
-}
-.profile-img {
-  width: 40px;
-  height: 40px;
-  transition: width 0.3s ease, height 0.3s ease;
-  margin-left: auto;
-  margin-right: auto;
-}
-#sidebar:hover .profile-img,
-#sidebar.open .profile-img {
-  width: 64px;
-  height: 64px;
-}
-.profile-text,
-.logo-expanded,
-.logout-btn {
+
+#sidebar .profile-text,
+#sidebar .logout-btn,
+#sidebar .logo-expanded {
   opacity: 0;
   max-width: 0;
   white-space: nowrap;
   overflow: hidden;
   transition: opacity 0.3s ease 0.15s, max-width 0.3s ease 0.15s;
+  display: inline-block;
 }
+
 #sidebar:hover .profile-text,
 #sidebar.open .profile-text,
 #sidebar:hover .logo-expanded,
@@ -169,11 +166,58 @@ onMounted(() => {
   opacity: 1;
   max-width: 1000px;
 }
-.logo-minimized {
+
+#sidebar .logo-minimized {
+  opacity: 1;
   max-width: 96px;
-  transition: opacity 0.15s ease, max-width 0.15s ease;
+  height: auto;
+  transition: opacity 0.15s ease 0.3s, max-width 0.15s ease 0.3s;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
+
+#sidebar .profile-img {
+  width: 40px;
+  height: 40px;
+  transition: width 0.3s ease, height 0.3s ease;
+  object-fit: cover;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#sidebar:hover .profile-img {
+  width: 64px;
+  height: 64px;
+}
+
 .logout-btn {
   width: 160px;
+}
+
+nav a {
+  transition: background-color 0.3s ease, color 0.3s ease;
+  border-radius: 0.375rem; /* rounded-md */
+  padding: 0.25rem 0.75rem;
+  display: flex;
+  align-items: center;
+}
+
+nav a:hover {
+  background-color: #cbd5e1; /* Tailwind gray-300 */
+  color: #1e293b; /* Tailwind gray-800 */
+}
+
+nav a:hover svg {
+  stroke: #1e293b;
+}
+
+#sidebar:hover nav a {
+  justify-content: flex-start;
+}
+
+#sidebar .logo-minimized {
+  max-width: 96px;
+  transition: opacity 0.15s ease, max-width 0.15s ease;
 }
 </style>

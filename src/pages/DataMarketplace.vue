@@ -18,8 +18,8 @@
       </select>
 
       <div class="ml-auto flex items-center space-x-2 sm:space-x-4 text-xs sm:text-sm text-black whitespace-nowrap">
-        <span>23/05/2025</span>
-        <span>10:38:39</span>
+        <span>"current-date"</span>
+        <span>"current-time"</span>
       </div>
 
       <input type="text" readonly value="POTK325052301" class="order-id-input" />
@@ -80,7 +80,7 @@
               <i class="fas fa-trash"></i>
             </td>
           </tr>
-          <tr v-for="n in 22" :key="n+3" :class="n % 2 === 0 ? 'bg-gray-100' : 'bg-white'">
+          <tr v-for="n in 22" :key="`empty-${n}`" :class="n % 2 === 0 ? 'bg-gray-100' : 'bg-white'">
             <td class="border border-black" colspan="11">&nbsp;</td>
           </tr>
         </tbody>
@@ -91,8 +91,8 @@
     <nav class="mt-4 flex flex-wrap justify-center items-center gap-2 text-sm sm:text-base select-none" aria-label="Pagination">
       <button class="nav-btn" aria-label="First page"><i class="fas fa-step-backward"></i></button>
       <button class="nav-btn" aria-label="Previous page"><i class="fas fa-caret-left"></i></button>
-      <template v-for="n in 9">
-        <button class="page-btn" :key="n" aria-label="Page {{n}}">{{n}}</button>
+      <template v-for="n in 9" :key="n">
+        <button class="page-btn" :aria-label="`Page ${n}`">{{ n }}</button>
       </template>
       <span class="px-2 py-1">…</span>
       <button class="nav-btn" aria-label="Next page"><i class="fas fa-caret-right"></i></button>
@@ -103,6 +103,27 @@
 
 <script setup>
 // Placeholder script block. Nanti bisa tambahkan fetch data marketplace, filter logic, pagination, dsb
+  // Fungsi untuk update tanggal dan waktu
+    import { ref, onMounted, onBeforeUnmount } from 'vue';
+
+    const currentDate = ref('');
+    const currentTime = ref('');
+    let intervalId = null;
+
+    const updateDateTime = () => {
+    const now = new Date();
+    currentDate.value = now.toLocaleDateString('en-GB');
+    currentTime.value = now.toLocaleTimeString('en-GB', { hour12: false });
+    };
+
+    onMounted(() => {
+    updateDateTime();
+    intervalId = setInterval(updateDateTime, 1000);
+    });
+
+    onBeforeUnmount(() => {
+    clearInterval(intervalId); // Bersihkan interval saat komponen di-unmount
+    });
 </script>
 
 <style scoped>

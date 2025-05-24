@@ -6,13 +6,13 @@
         <p class="text-lg mb-2">Selamat Datang,</p>
         <p class="text-lg mb-4">Aplikasi yang dibuat khusus untuk</p>
         <p class="font-extrabold text-xl md:text-2xl mb-12">Pnomsticklite.Corp</p>
-        <img src="https://i.imgur.com/UnFQxHc.png" alt="CARO Logo" class="w-[120px] h-[120px] md:w-[160px] md:h-[160px] mx-auto md:mx-0" />
+        <img src="https://i.imgur.com/pt08ud9.png" alt="CARO ERP Logo" class="w-[260px] h-[260px] md:w-[160px] md:h-[160px] mx-auto md:mx-0" />
       </div>
 
       <!-- Right side -->
       <div class="bg-[#d9e8f4] rounded-3xl p-8 w-full max-w-md flex flex-col items-center">
         <h2 class="text-2xl font-semibold mb-2">MASUK</h2>
-        <p class="mb-8 text-center">CARO.ERP One Web App for various purpose!</p>
+        <p class="mb-8 text-center">CARO.ERP - One PWA for various purpose!</p>
 
         <form class="w-full flex flex-col gap-6" @submit.prevent="handleLogin">
           <div class="flex flex-col">
@@ -43,7 +43,7 @@
         </form>
 
         <p class="mt-8 text-xs font-semibold text-center">
-          Caro.CRM was built with <span class="text-red-500">❤️</span> by Rakaro Agency!
+          Caro.ERP was built with <span class="text-red-500">❤️</span> by Rakaro Agency!
         </p>
       </div>
     </div>

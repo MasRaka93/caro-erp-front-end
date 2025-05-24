@@ -18,8 +18,8 @@
       </select>
 
       <div class="ml-auto flex items-center space-x-2 sm:space-x-4 text-xs sm:text-sm text-black whitespace-nowrap">
-        <span>"current-date"</span>
-        <span>"current-time"</span>
+        <span>{{ currentDate }}</span>
+        <span>{{ currentTime }}</span>
       </div>
 
       <input type="text" readonly value="POTK325052301" class="order-id-input" />

@@ -5,7 +5,7 @@ import HomePage from './pages/HomePage.vue'
 
 const routes = [
   { path: '/', name: 'Login', component: LoginPage },
-  { path: '/data-marketplace', name: 'DataMarketplace', component: DataMarketplace},
+  { path: '/data-marketplace', name: 'DataMarketplace', component: DataMarketplace },  // ✅ tambahkan koma dan awali path dengan '/'
   { path: '/home', name: 'Home', component: HomePage },
 ]
 

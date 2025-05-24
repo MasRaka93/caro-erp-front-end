@@ -1,4 +1,7 @@
 <template>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
   <div class="bg-[#3b8ad1] min-h-screen flex items-center justify-center p-6 font-lexend">
     <div class="max-w-5xl w-full flex flex-col md:flex-row items-center md:items-start justify-center gap-12 md:gap-24">
       <!-- Left side -->
@@ -6,7 +9,7 @@
         <p class="text-lg mb-2">Selamat Datang,</p>
         <p class="text-lg mb-4">Aplikasi yang dibuat khusus untuk</p>
         <p class="font-extrabold text-xl md:text-2xl mb-12">Pnomsticklite.Corp</p>
-        <img src="https://i.imgur.com/pt08ud9.png" alt="CARO ERP Logo" class="w-[260px] h-[260px] md:w-[160px] md:h-[160px] mx-auto md:mx-0" />
+        <img src="https://i.imgur.com/pt08ud9.png" alt="CARO ERP Logo" class="w-[260px] h-[260px] md:w-[40px] md:h-[40px] mx-auto" />
       </div>
 
       <!-- Right side -->
@@ -74,7 +77,9 @@ export default {
       const device = `${ua.device.vendor || "Unknown"} - ${ua.browser.name} ${ua.browser.version}`;
 
       try {
-        const response = await fetch(`${import.meta.env.VITE_SCRIPT_URL}?token=${token}&device=${encodeURIComponent(device)}`);
+        const response = await fetch(
+          `${import.meta.env.VITE_SCRIPT_URL}?token=${token}&device=${encodeURIComponent(device)}`
+        );
         const result = await response.json();
         console.log("Auto-login check:", result);
 
@@ -110,13 +115,13 @@ export default {
         console.warn("IP/Location fetch failed:", err);
       }
 
-      const scriptUrl = import.meta.env.VITE_SCRIPT_URL;
+      const proxyUrl = "/api/login"; // ✅ GUNAKAN proxy Vercel
 
       try {
-        console.log("Sending login request to:", scriptUrl);
+        console.log("Sending login request to:", proxyUrl);
         console.log("Email:", this.email);
 
-        const response = await fetch(scriptUrl, {
+        const response = await fetch(proxyUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -146,6 +151,7 @@ export default {
   },
 };
 </script>
+
 
 <style>
 @import url("https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&display=swap");

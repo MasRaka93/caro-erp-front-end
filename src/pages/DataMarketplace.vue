@@ -1,7 +1,7 @@
 <template>
   <div class="flex min-h-screen bg-white text-black">
     <!-- Sidebar -->
-    <Sidebar :isSidebarOpen/>
+    <Sidebar :isSidebarOpen="true" />
 
     <!-- Main Content -->
     <main class="flex-1 p-4 sm:p-8 max-w-[1400px] mx-auto sm:ml-[80px]">

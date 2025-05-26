@@ -140,6 +140,10 @@ const totalPages = computed(() => Math.ceil(tableData.value.length / itemsPerPag
 const canUpload = computed(() => selectedMarketplace.value && selectedAkunToko.value && selectedMonth.value && selectedYear.value);
 const canSubmit = computed(() => canUpload.value && tableData.value.length > 0);
 
+const toggleSidebar = () => {
+  // Logic handled in Sidebar.vue
+};
+
 const generatedPO = computed(() => {
   const idToko = 'TK123'; // Dummy
   const today = new Date();

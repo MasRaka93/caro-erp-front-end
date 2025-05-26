@@ -1,179 +1,179 @@
 <template>
-  <div class="flex min-h-screen bg-white text-black">
+  <div class="flex min-h-screen bg-gray-100">
     <!-- Sidebar -->
-    <Sidebar />
+    <Sidebar :is-minimized="isSidebarMinimized" @toggle="toggleSidebar" />
 
-    <!-- Main content -->
-    <div class="flex-1 p-4 sm:p-8 max-w-[1400px] mx-auto">
-      <h1 class="font-bold text-xl sm:text-2xl mb-6 sm:mb-8 font-bold-inter">
-        DATA MARKETPLACE
-      </h1>
+    <!-- Konten utama -->
+    <div class="flex-1 p-4">
+      <div class="mb-4 flex flex-col md:flex-row gap-2 md:items-center justify-between">
+        <div class="flex gap-2 flex-wrap">
+          <!-- Dropdown Marketplace -->
+          <select v-model="selectedMarketplace" @change="fetchAccounts" class="select-box">
+            <option value="" disabled>Pilih Marketplace</option>
+            <option v-for="market in marketplaces" :key="market" :value="market">{{ market }}</option>
+          </select>
 
-      <!-- Filters and Info Bar -->
-      <section class="flex flex-wrap items-center gap-3 sm:gap-4 mb-4 w-full">
-        <select class="filter-select" aria-label="Marketplace">
-          <option disabled selected>Marketplace</option>
-        </select>
-        <select class="filter-select" aria-label="Nama Akun Toko">
-          <option disabled selected>Nama Akun Toko</option>
-        </select>
-        <select class="filter-select" aria-label="Bulan Data">
-          <option disabled selected>Bulan Data</option>
-        </select>
-        <select class="filter-select" aria-label="Tahun Data">
-          <option disabled selected>Tahun Data</option>
-        </select>
+          <!-- Dropdown Akun -->
+          <select v-model="selectedAccount" class="select-box">
+            <option value="" disabled>Pilih Akun</option>
+            <option v-for="account in accounts" :key="account" :value="account">{{ account }}</option>
+          </select>
 
-        <div class="ml-auto flex items-center space-x-2 sm:space-x-4 text-xs sm:text-sm text-black whitespace-nowrap">
-          <span>{{ currentDate }}</span>
-          <span>{{ currentTime }}</span>
+          <!-- Dropdown Bulan -->
+          <select v-model="selectedMonth" class="select-box">
+            <option v-for="(month, index) in months" :key="index" :value="month">{{ month }}</option>
+          </select>
+
+          <!-- Dropdown Tahun -->
+          <select v-model="selectedYear" class="select-box">
+            <option v-for="year in years" :key="year" :value="year">{{ year }}</option>
+          </select>
         </div>
 
-        <input
-          type="text"
-          readonly
-          value="POTK325052301"
-          class="order-id-input"
-        />
-      </section>
-
-      <!-- Summary + Buttons -->
-      <section class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 sm:mb-4 gap-3 sm:gap-4">
-        <p class="text-gray-600 font-semibold text-sm sm:text-lg whitespace-nowrap">
-          125 Pesanan - 58 SKU Produk - 0 SKU Error
-        </p>
-        <div class="flex gap-3 sm:gap-4 flex-wrap sm:flex-nowrap">
-          <button class="action-button">
-            <span>Unggah Data</span>
-            <i class="fas fa-upload"></i>
-          </button>
-          <button class="action-button">
-            <span>Kirim Data</span>
-            <i class="fas fa-paper-plane"></i>
-          </button>
+        <!-- Tombol Upload dan Kirim -->
+        <div class="flex gap-2">
+          <button @click="openUploadModal" class="btn btn-primary">Upload Data</button>
+          <button @click="submitData" class="btn btn-secondary">Kirim Data</button>
         </div>
-      </section>
+      </div>
 
-      <!-- Table -->
-      <section class="overflow-x-auto border border-black rounded">
-        <table class="w-full border-collapse table-fixed min-w-[700px] sm:min-w-full">
-          <thead>
-            <tr class="bg-sky-500 text-white text-xs sm:text-sm font-semibold">
-              <th class="cell-head w-10">
-                <input type="checkbox" aria-label="Select all rows" />
-              </th>
-              <th class="cell-head min-w-[120px]">Nomor PO</th>
-              <th class="cell-head min-w-[130px]">No AWB</th>
-              <th class="cell-head min-w-[130px]">Tgl Order</th>
-              <th class="cell-head min-w-[130px]">SKU Produk</th>
-              <th class="cell-head min-w-[180px]">Nama Produk</th>
-              <th class="cell-head min-w-[120px]">Varian</th>
-              <th class="cell-head w-10">Qty</th>
-              <th class="cell-head min-w-[100px]">SKU Real</th>
-              <th class="cell-head w-10"></th>
-              <th class="cell-head w-10"></th>
-            </tr>
-          </thead>
-          <tbody class="text-[10px] sm:text-xs">
-            <tr v-for="n in 3" :key="n" :class="n % 2 === 0 ? 'bg-gray-100' : 'bg-white'">
-              <td class="cell-data text-center">
-                <input type="checkbox" :aria-label="`Select row ${n}`" />
-              </td>
-              <td class="cell-data" title="240412FSD8YU...">240412FSD8YU...</td>
-              <td class="cell-data" title="JPX146123568">JPX146123568</td>
-              <td class="cell-data" title="24/05/2025 10:30">24/05/2025 10:30</td>
-              <td class="cell-data" title="101001 SCH...">101001 SCH...</td>
-              <td class="cell-data" title="101001 SCH Sticker Case ...">101001 SCH Sticker Case ...</td>
-              <td class="cell-data" title="108 Pcs (Col..">108 Pcs (Col..</td>
-              <td class="cell-data text-center">1</td>
-              <td class="cell-data" title="101001">101001</td>
-              <td class="cell-data text-center cursor-pointer" title="Edit row">
-                <i class="fas fa-edit"></i>
-              </td>
-              <td class="cell-data text-center cursor-pointer" title="Delete row">
-                <i class="fas fa-trash"></i>
-              </td>
-            </tr>
-            <tr v-for="n in 22" :key="`empty-${n}`" :class="n % 2 === 0 ? 'bg-gray-100' : 'bg-white'">
-              <td class="border border-black" colspan="11">&nbsp;</td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
-
-      <!-- Pagination -->
-      <nav class="mt-4 flex flex-wrap justify-center items-center gap-2 text-sm sm:text-base select-none" aria-label="Pagination">
-        <button class="nav-btn" aria-label="First page"><i class="fas fa-step-backward"></i></button>
-        <button class="nav-btn" aria-label="Previous page"><i class="fas fa-caret-left"></i></button>
-        <template v-for="n in 9" :key="n">
-          <button class="page-btn" :aria-label="`Page ${n}`">{{ n }}</button>
-        </template>
-        <span class="px-2 py-1">…</span>
-        <button class="nav-btn" aria-label="Next page"><i class="fas fa-caret-right"></i></button>
-        <button class="nav-btn" aria-label="Last page"><i class="fas fa-step-forward"></i></button>
-      </nav>
+      <!-- Preview Data -->
+      <div v-if="parsedData.length > 0" class="bg-white rounded shadow p-4">
+        <h3 class="font-semibold mb-2">Preview Data ({{ parsedData.length }} baris)</h3>
+        <div class="overflow-x-auto">
+          <table class="table-auto w-full text-sm">
+            <thead>
+              <tr>
+                <th v-for="(header, index) in parsedData[0]" :key="index" class="px-2 py-1 border">{{ header }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(row, rowIndex) in parsedData.slice(1)" :key="rowIndex">
+                <td v-for="(cell, colIndex) in row" :key="colIndex" class="px-2 py-1 border">{{ cell }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
+
+    <!-- Modal Upload -->
+    <UploadModal v-if="showUploadModal" @close="showUploadModal = false" @uploaded="handleUploadedData" />
   </div>
 </template>
 
 <script setup>
-import Sidebar from '@/components/Sidebar.vue';
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted } from 'vue'
+import Sidebar from '@/components/Sidebar.vue'
+import UploadModal from '@/components/UploadModal.vue'
 
-const currentDate = ref('');
-const currentTime = ref('');
-let intervalId = null;
+const isSidebarMinimized = ref(false)
+const toggleSidebar = () => {
+  isSidebarMinimized.value = !isSidebarMinimized.value
+}
 
-const updateDateTime = () => {
-  const now = new Date();
-  currentDate.value = now.toLocaleDateString('en-GB');
-  currentTime.value = now.toLocaleTimeString('en-GB', { hour12: false });
-};
+const selectedMarketplace = ref('')
+const selectedAccount = ref('')
+const selectedMonth = ref('')
+const selectedYear = ref('')
+const marketplaces = ref([])
+const accounts = ref([])
+const months = ref([
+  'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+])
+const years = ref([])
+const showUploadModal = ref(false)
+const parsedData = ref([])
+
+const fetchMarketplaces = async () => {
+  try {
+    const res = await fetch('/api/getMarketplaces') // Endpoint dari Apps Script
+    const json = await res.json()
+    marketplaces.value = json.marketplaces
+  } catch (err) {
+    console.error('Gagal ambil marketplace:', err)
+  }
+}
+
+const fetchAccounts = async () => {
+  if (!selectedMarketplace.value) return
+  try {
+    const res = await fetch(`/api/getAccounts?marketplace=${selectedMarketplace.value}`)
+    const json = await res.json()
+    accounts.value = json.accounts
+  } catch (err) {
+    console.error('Gagal ambil akun:', err)
+  }
+}
+
+const openUploadModal = () => {
+  if (!selectedMarketplace.value || !selectedAccount.value || !selectedMonth.value || !selectedYear.value) {
+    alert('Mohon lengkapi pilihan marketplace, akun, bulan, dan tahun sebelum upload.')
+    return
+  }
+  showUploadModal.value = true
+}
+
+const handleUploadedData = (data) => {
+  parsedData.value = data
+  showUploadModal.value = false
+}
+
+const submitData = async () => {
+  if (parsedData.value.length === 0) {
+    alert('Tidak ada data untuk dikirim.')
+    return
+  }
+
+  const payload = {
+    marketplace: selectedMarketplace.value,
+    account: selectedAccount.value,
+    month: selectedMonth.value,
+    year: selectedYear.value,
+    data: parsedData.value
+  }
+
+  try {
+    const res = await fetch('/api/submitData', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    })
+    const result = await res.json()
+    alert(result.message || 'Data berhasil dikirim.')
+  } catch (err) {
+    console.error('Gagal kirim data:', err)
+    alert('Terjadi kesalahan saat mengirim data.')
+  }
+}
 
 onMounted(() => {
-  updateDateTime();
-  intervalId = setInterval(updateDateTime, 1000);
-});
-
-onBeforeUnmount(() => {
-  clearInterval(intervalId);
-});
+  fetchMarketplaces()
+  const now = new Date()
+  selectedMonth.value = months.value[now.getMonth()]
+  selectedYear.value = now.getFullYear()
+  years.value = Array.from({ length: 11 }, (_, i) => 2024 + i)
+})
 </script>
 
 <style scoped>
-@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css");
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap");
-
-.font-bold-inter {
-  font-family: "Inter", sans-serif;
-  font-weight: 700;
+.select-box {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: white;
 }
-
-.filter-select {
-  @apply border border-black text-gray-400 text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2 appearance-none pr-7 sm:pr-8 flex-shrink-0;
+.btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
 }
-
-.order-id-input {
-  @apply border border-black text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2 w-[120px] sm:w-[160px] text-center ml-2 sm:ml-4 flex-shrink-0;
+.btn-primary {
+  background-color: #2563eb;
+  color: white;
 }
-
-.action-button {
-  @apply bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 px-4 sm:px-5 rounded-lg shadow-md flex items-center gap-2 transition-colors duration-200 whitespace-nowrap;
-}
-
-.cell-head {
-  @apply border border-black px-2 sm:px-3 py-1 sm:py-2 text-center;
-}
-
-.cell-data {
-  @apply border border-black px-2 sm:px-3 py-1 sm:py-2 truncate max-w-[180px];
-}
-
-.nav-btn {
-  @apply font-bold p-1 sm:p-2 hover:text-sky-600 transition-colors;
-}
-
-.page-btn {
-  @apply font-semibold px-2 sm:px-3 py-1 rounded hover:bg-sky-100 transition-colors;
+.btn-secondary {
+  background-color: #10b981;
+  color: white;
 }
 </style>

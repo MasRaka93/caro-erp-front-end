@@ -2,8 +2,9 @@
   <div>
     <!-- Hamburger Button on Mobile -->
     <button
-      @click="toggleMobileSidebar"
+      @click="toggleSidebar"
       class="md:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-white shadow-lg focus:outline-none"
+      aria-label="Toggle sidebar"
     >
       <svg class="w-8 h-8 text-black" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
         <line x1="3" y1="12" x2="21" y2="12" />
@@ -13,140 +14,122 @@
     </button>
 
     <!-- Overlay -->
-    <div v-if="isMobileOpen" class="fixed inset-0 bg-black bg-opacity-30 z-30 md:hidden" @click="toggleMobileSidebar"></div>
+    <div
+      id="overlay"
+      class="fixed inset-0 bg-black bg-opacity-30 z-30 md:hidden"
+      v-show="isSidebarOpen"
+      @click="closeSidebar"
+    ></div>
 
     <!-- Sidebar -->
     <aside
-      class="fixed top-0 left-0 z-40 h-full bg-gray-100 transition-all duration-300 flex flex-col justify-between px-6 py-8 w-64 md:w-16 md:hover:w-72"
-      :class="{ 'translate-x-0': isMobileOpen, '-translate-x-full': !isMobileOpen, 'md:translate-x-0': true }"
+      id="sidebar"
+      class="fixed top-0 left-0 z-40 h-full bg-gray-100 flex flex-col justify-between px-6 py-8 w-64 md:w-16 md:hover:w-72 transition-all duration-300 transform"
+      :class="{'-translate-x-full': !isSidebarOpen, 'translate-x-0': isSidebarOpen}"
+      aria-label="Sidebar navigation"
     >
       <!-- Profile -->
       <div>
         <div class="flex items-center space-x-0 md:space-x-4 mb-12">
           <img
-            :src="profilePictureUrl"
-            alt="Profile picture"
+            src="https://storage.googleapis.com/a1aa/image/949c4611-7f10-4473-594d-4957a26bc039.jpg"
+            alt="Profile picture of user with short black hair, smiling, wearing a blue shirt, on a light gray background"
             class="rounded-full object-cover profile-img"
-            @error="handleImageError"
+            id="profileImg"
           />
           <div class="profile-text hidden md:block">
-            <h1 class="text-black font-semibold text-lg leading-tight">{{ user.nickname }}</h1>
-            <p class="text-xs text-gray-700 leading-tight">{{ user.role }}</p>
+            <h1 class="text-black font-semibold text-lg leading-tight">Pengguna</h1>
+            <p class="text-xs text-gray-700 leading-tight">Role</p>
           </div>
         </div>
 
         <!-- Navigation -->
-        <nav class="space-y-6">
-          <SidebarLink to="/data-marketplace" :icon="FileText" label="Data Marketplace" />
-          <SidebarLink to="#" :icon="Barcode" label="Scan AWB" />
-          <SidebarLink to="#" :icon="ShoppingCart" label="Belanja Produk" />
-          <SidebarLink to="#" :icon="CheckCircle" label="Success" />
-          <SidebarLink to="#" :icon="RotateCcw" label="Retur / Cancel" />
-          <SidebarLink to="#" :icon="ClipboardList" label="Laporan" />
-          <SidebarLink to="#" :icon="Settings" label="Pengaturan" />
+        <nav class="space-y-6" aria-label="Main navigation">
+          <a href="/data-marketplace" class="flex items-center space-x-3 text-gray-700 hover:text-sky-600 transition-colors duration-200">
+            <i class="fas fa-file-alt fa-lg w-6 text-center"></i>
+            <span class="label-text">Data Marketplace</span>
+          </a>
+          <a href="#" class="flex items-center space-x-3 text-gray-700 hover:text-sky-600 transition-colors duration-200">
+            <i class="fas fa-barcode fa-lg w-6 text-center"></i>
+            <span class="label-text">Scan AWB</span>
+          </a>
+          <a href="#" class="flex items-center space-x-3 text-gray-700 hover:text-sky-600 transition-colors duration-200">
+            <i class="fas fa-shopping-cart fa-lg w-6 text-center"></i>
+            <span class="label-text">Belanja Produk</span>
+          </a>
+          <a href="#" class="flex items-center space-x-3 text-gray-700 hover:text-sky-600 transition-colors duration-200">
+            <i class="fas fa-check-circle fa-lg w-6 text-center"></i>
+            <span class="label-text">Success</span>
+          </a>
+          <a href="#" class="flex items-center space-x-3 text-gray-700 hover:text-sky-600 transition-colors duration-200">
+            <i class="fas fa-undo-alt fa-lg w-6 text-center"></i>
+            <span class="label-text">Retur / Cancel</span>
+          </a>
+          <a href="#" class="flex items-center space-x-3 text-gray-700 hover:text-sky-600 transition-colors duration-200">
+            <i class="fas fa-clipboard-list fa-lg w-6 text-center"></i>
+            <span class="label-text">Laporan</span>
+          </a>
+          <a href="#" class="flex items-center space-x-3 text-gray-700 hover:text-sky-600 transition-colors duration-200">
+            <i class="fas fa-cog fa-lg w-6 text-center"></i>
+            <span class="label-text">Pengaturan</span>
+          </a>
         </nav>
       </div>
 
       <!-- Footer -->
-      <div class="flex flex-col items-center space-y-6">
-        <button @click="logout" class="logout-btn bg-sky-400 text-white font-semibold text-sm rounded-md px-6 py-2 w-full max-w-[160px]">
+      <div class="footer-container">
+        <button id="logoutBtn" class="logout-btn bg-sky-400 text-white font-semibold text-sm rounded-md px-6 py-2 w-full max-w-[160px] mt-6">
           Logout
         </button>
-        <img src="https://i.imgur.com/dQV51zd.png" alt="Logo minimized" class="logo-minimized object-contain max-w-[96px]" />
-        <img src="https://i.imgur.com/Pgr96A6.png" alt="Logo expanded" class="logo-expanded object-contain w-full max-w-[180px]" />
+        <img src="https://i.imgur.com/dQV51zd.png" alt="Logo icon of the application, blue and white abstract shape, sized 40 by 40 pixels" class="logo-minimized" />
+        <img src="https://i.imgur.com/Pgr96A6.png" alt="Full logo of the application, blue and white text and icon, sized 140 pixels wide with proportional height" class="logo-expanded" />
       </div>
     </aside>
   </div>
 </template>
 
-<script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import SidebarLink from './SidebarLink.vue';
-import { FileText, Barcode, ShoppingCart, CheckCircle, RotateCcw, ClipboardList, Settings } from 'lucide-vue-next';
-
-const router = useRouter();
-const isMobileOpen = ref(false);
-
-const toggleMobileSidebar = () => {
-  isMobileOpen.value = !isMobileOpen.value;
-};
-
-const user = ref({
-  nickname: 'Pengguna',
-  role: 'Role',
-  profilePicId: ''
-});
-
-const defaultProfilePic = 'https://storage.googleapis.com/a1aa/image/949c4611-7f10-4473-594d-4957a26bc039.jpg';
-
-const profilePictureUrl = computed(() => {
-  return user.value.profilePicId
-    ? `https://drive.google.com/thumbnail?id=${user.value.profilePicId}&sz=w200-h200`
-    : defaultProfilePic;
-});
-
-const handleImageError = (e) => {
-  e.target.src = defaultProfilePic;
-};
-
-const logout = async () => {
-  const token = localStorage.getItem('auth_token');
-  const userData = JSON.parse(localStorage.getItem('auth_user'));
-  const device = navigator.userAgent;
-
-  try {
-    const ipRes = await fetch('https://ipapi.co/json');
-    const ipData = await ipRes.json();
-    const ip = ipData.ip;
-    const location = `${ipData.city}, ${ipData.region}, ${ipData.country_name}`;
-
-    await fetch(import.meta.env.VITE_SCRIPT_URL + '?action=logout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, userId: userData.id, device, ip, location })
-    });
-  } catch (err) {
-    console.warn('Logout log failed:', err);
-  }
-
-  localStorage.removeItem('auth_token');
-  localStorage.removeItem('auth_user');
-  router.push('/');
-};
-
-onMounted(() => {
-  const userData = JSON.parse(localStorage.getItem('auth_user'));
-  if (userData) {
-    user.value = {
-      nickname: userData.nickname || 'Pengguna',
-      role: userData.role || 'Role',
-      profilePicId: userData.profilePicId || ''
+<script>
+export default {
+  data() {
+    return {
+      isSidebarOpen: false,
     };
-  }
-});
+  },
+  methods: {
+    toggleSidebar() {
+      this.isSidebarOpen = !this.isSidebarOpen;
+    },
+    closeSidebar() {
+      this.isSidebarOpen = false;
+    },
+  },
+};
 </script>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Lexend&display=swap');
 
+aside {
+  transition: width 0.3s ease;
+}
+
+/* Profile image: always 40x40 on minimized, bigger on expanded */
 .profile-img {
-  width: 40px;
-  height: 40px;
+  width: 40px !important;
+  height: 40px !important;
   object-fit: cover;
-  transition: width 0.3s, height 0.3s;
   margin-left: auto;
   margin-right: auto;
+  transition: width 0.3s ease, height 0.3s ease;
 }
 
 aside:hover .profile-img {
-  width: 64px;
-  height: 64px;
+  width: 56px !important;
+  height: 56px !important;
 }
 
-.profile-text,
-.logo-expanded,
-.logout-btn {
+/* Profile text hidden on minimized, visible on expanded hover */
+.profile-text {
   opacity: 0;
   max-width: 0;
   white-space: nowrap;
@@ -154,31 +137,90 @@ aside:hover .profile-img {
   transition: opacity 0.3s ease 0.15s, max-width 0.3s ease 0.15s;
 }
 
-aside:hover .profile-text,
-aside:hover .logo-expanded,
-aside:hover .logout-btn {
+aside:hover .profile-text {
   opacity: 1;
   max-width: 1000px;
 }
 
+/* Navigation label text hidden on minimized */
+nav a > span.label-text {
+  opacity: 0;
+  max-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  display: inline-block;
+  transition: opacity 0.3s ease 0.15s, max-width 0.3s ease 0.15s;
+  vertical-align: middle;
+}
+
+/* Show label text on hover expanded */
+aside:hover nav a > span.label-text {
+  opacity: 1;
+  max-width: 1000px;
+}
+
+/* Footer logos and logout button */
+.logout-btn,
+.logo-expanded {
+  opacity: 0;
+  max-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: opacity 0.3s ease 0.15s, max-width 0.3s ease 0.15s;
+}
+
+aside:hover .logout-btn,
+aside:hover .logo-expanded {
+  opacity: 1;
+  max-width: 1000px;
+}
+
+/* Minimized logo visible */
 .logo-minimized {
   opacity: 1;
-  transition: opacity 0.3s ease;
+  width: 40px !important;
+  height: 40px !important;
+  object-fit: contain;
+  transition: opacity 0.3s ease, margin-bottom 0.3s ease;
+  margin-bottom: 0.5rem;
 }
 
+/* Hide minimized logo on hover expanded */
 aside:hover .logo-minimized {
   opacity: 0;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden;
+  margin-bottom: 0 !important;
 }
 
+/* Expanded logo size smaller than before */
+.logo-expanded {
+  width: 140px !important;
+  height: auto !important;
+  object-fit: contain;
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+}
+
+/* Footer container spacing adjustments */
+.footer-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem; /* reduce vertical spacing */
+}
+
+/* Add margin-top to logout button to separate from menu */
+nav a:last-child {
+  margin-bottom: 2.5rem; /* increased margin for more space */
+}
+
+/* Mobile adjustments */
 @media (max-width: 767px) {
   aside {
     width: 18rem !important;
-    transform: translateX(-100%);
     padding: 1.5rem;
-  }
-
-  aside.translate-x-0 {
-    transform: translateX(0);
   }
 
   .profile-text,
@@ -190,11 +232,24 @@ aside:hover .logo-minimized {
 
   .logo-minimized {
     opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden;
+    margin-bottom: 0 !important;
   }
 
   .profile-img {
-    width: 64px;
-    height: 64px;
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  nav a > span.label-text {
+    opacity: 1 !important;
+    max-width: 1000px !important;
+  }
+
+  nav a:last-child {
+    margin-bottom: 2.5rem !important;
   }
 }
 </style>

@@ -1,184 +1,174 @@
 <template>
-  <div class="flex min-h-screen font-lexend">
+  <div class="flex min-h-screen font-Lexend">
     <Sidebar />
+    <div class="flex-1 p-4">
+      <!-- Konten utama -->
+    </div>
+  </div>
 
-    <div class="flex-1 p-4 bg-gray-50">
-      <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
-        <h1 class="text-2xl font-bold mb-2 md:mb-0">Data Marketplace</h1>
+  <div class="bg-white text-black p-8 font-Lexend">
+    <main class="max-w-[1440px] mx-auto">
+      <h1 class="text-2xl font-extrabold mb-8">DATA MARKETPLACE</h1>
 
-        <div class="flex flex-wrap gap-2">
-          <select v-model="selectedMarketplace" class="select">
-            <option disabled value="">Pilih Marketplace</option>
-            <option v-for="marketplace in marketplaces" :key="marketplace">{{ marketplace }}</option>
-          </select>
+      <!-- Dropdown & Info Bar -->
+      <section class="flex flex-wrap items-center gap-4 mb-6">
+        <select v-model="selectedMarketplace" class="border border-black text-gray-400 text-sm px-4 py-2 appearance-none pr-8">
+          <option disabled value="">Marketplace</option>
+          <option v-for="mp in marketplaces" :key="mp" :value="mp">{{ mp }}</option>
+        </select>
+        <select v-model="selectedAkun" class="border border-black text-gray-400 text-sm px-4 py-2 appearance-none pr-8">
+          <option disabled value="">Nama Akun Toko</option>
+          <option v-for="akun in akunToko" :key="akun" :value="akun">{{ akun }}</option>
+        </select>
+        <select v-model="selectedBulan" class="border border-black text-gray-400 text-sm px-4 py-2 appearance-none pr-8">
+          <option disabled value="">Bulan Data</option>
+          <option v-for="bulan in bulanList" :key="bulan" :value="bulan">{{ bulan }}</option>
+        </select>
+        <select v-model="selectedTahun" class="border border-black text-gray-400 text-sm px-4 py-2 appearance-none pr-8">
+          <option disabled value="">Tahun Data</option>
+          <option v-for="tahun in tahunList" :key="tahun" :value="tahun">{{ tahun }}</option>
+        </select>
 
-          <select v-model="selectedAccount" class="select">
-            <option disabled value="">Pilih Akun Toko</option>
-            <option v-for="account in accounts" :key="account">{{ account }}</option>
-          </select>
-
-          <select v-model="selectedMonth" class="select">
-            <option v-for="(month, index) in months" :key="index" :value="month.value">{{ month.name }}</option>
-          </select>
-
-          <select v-model="selectedYear" class="select">
-            <option v-for="year in years" :key="year">{{ year }}</option>
-          </select>
+        <div class="ml-auto flex items-center space-x-4 text-sm font-normal">
+          <span>{{ tanggal }}</span>
+          <span>{{ waktu }}</span>
         </div>
-      </div>
 
-      <div class="flex justify-between mb-4">
-        <button @click="openUpload" class="btn-primary">
-          <Upload class="w-4 h-4 mr-1" /> Upload Data
-        </button>
-        <button @click="submitData" class="btn-green">
-          <Send class="w-4 h-4 mr-1" /> Kirim Data
-        </button>
-      </div>
+        <input
+          type="text"
+          readonly
+          :value="nomorPO"
+          class="border border-black text-sm px-4 py-2 w-[160px] text-center ml-4"
+        />
+      </section>
 
-      <!-- Tabel Data -->
-      <div class="overflow-auto rounded shadow bg-white">
-        <table class="min-w-full text-sm text-left">
-          <thead class="bg-gray-200 text-gray-700">
-            <tr>
-              <th class="px-4 py-2">No</th>
-              <th class="px-4 py-2">Tanggal</th>
-              <th class="px-4 py-2">Nomor PO</th>
-              <th class="px-4 py-2">Marketplace</th>
-              <th class="px-4 py-2">Akun</th>
-              <th class="px-4 py-2">Status</th>
-              <th class="px-4 py-2">Aksi</th>
+      <!-- Tombol -->
+      <section class="flex justify-end gap-4 mb-2">
+        <button
+          @click="openUploadModal"
+          class="bg-sky-400 text-black font-extrabold text-sm px-4 py-2 rounded-md flex items-center gap-2"
+        >
+          Unggah Data
+          <i class="fas fa-upload"></i>
+        </button>
+        <button
+          @click="kirimData"
+          class="bg-sky-400 text-black font-extrabold text-sm px-4 py-2 rounded-md flex items-center gap-2"
+        >
+          Kirim Data
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </section>
+
+      <!-- Info Ringkasan -->
+      <section class="mb-4">
+        <p class="text-gray-600 font-semibold text-lg">
+          {{ summaryText }}
+        </p>
+      </section>
+
+      <!-- Tabel -->
+      <section class="overflow-x-auto border border-black">
+        <table class="w-full border-collapse table-fixed text-sm">
+          <thead>
+            <tr class="bg-sky-500 text-white font-semibold text-left">
+              <th class="w-10 border border-black px-2 py-2">
+                <input type="checkbox" />
+              </th>
+              <th class="w-[130px] border border-black px-2 py-2">Nomor PO</th>
+              <th class="w-[130px] border border-black px-2 py-2">No AWB</th>
+              <th class="w-[130px] border border-black px-2 py-2">Tgl Order</th>
+              <th class="w-[130px] border border-black px-2 py-2">SKU Produk</th>
+              <th class="w-[180px] border border-black px-2 py-2">Nama Produk</th>
+              <th class="w-[110px] border border-black px-2 py-2">Varian</th>
+              <th class="w-10 border border-black px-2 py-2 text-center">Qty</th>
+              <th class="w-[90px] border border-black px-2 py-2">SKU Real</th>
+              <th class="w-10 border border-black px-2 py-2 text-center"><i class="fas fa-pen"></i></th>
+              <th class="w-10 border border-black px-2 py-2 text-center"><i class="fas fa-trash"></i></th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(row, index) in dataTable" :key="index" :class="row.status === 'Valid' ? 'bg-green-50' : 'bg-red-50'">
-              <td class="px-4 py-2">{{ index + 1 }}</td>
-              <td class="px-4 py-2">{{ formatDate(row.tanggal) }}</td>
-              <td class="px-4 py-2">{{ row.nomorPO }}</td>
-              <td class="px-4 py-2">{{ row.marketplace }}</td>
-              <td class="px-4 py-2">{{ row.akun }}</td>
-              <td class="px-4 py-2">{{ row.status }}</td>
-              <td class="px-4 py-2 flex gap-2">
-                <button class="text-blue-600 hover:underline" @click="editRow(index)">
-                  <Edit class="w-4 h-4" />
-                </button>
-                <button class="text-red-600 hover:underline" @click="deleteRow(index)">
-                  <Trash2 class="w-4 h-4" />
-                </button>
+            <tr v-for="(row, i) in rows" :key="i" :class="i % 2 === 0 ? 'bg-white' : 'bg-gray-100'">
+              <td class="border border-black px-2 py-2 text-center">
+                <input type="checkbox" />
               </td>
+              <td class="border border-black px-2 py-2 truncate">{{ row.nomorPO }}</td>
+              <td class="border border-black px-2 py-2 truncate">{{ row.awb }}</td>
+              <td class="border border-black px-2 py-2">{{ row.tglOrder }}</td>
+              <td class="border border-black px-2 py-2 truncate">{{ row.skuProduk }}</td>
+              <td class="border border-black px-2 py-2 truncate">{{ row.namaProduk }}</td>
+              <td class="border border-black px-2 py-2 truncate">{{ row.varian }}</td>
+              <td class="border border-black px-2 py-2 text-center">{{ row.qty }}</td>
+              <td class="border border-black px-2 py-2">{{ row.skuReal }}</td>
+              <td class="border border-black px-2 py-2 text-center cursor-pointer"><i class="fas fa-pen"></i></td>
+              <td class="border border-black px-2 py-2 text-center cursor-pointer"><i class="fas fa-trash"></i></td>
             </tr>
           </tbody>
         </table>
-      </div>
-    </div>
-
-    <!-- Upload Modal -->
-    <UploadModal v-if="showUploadModal" @close="showUploadModal = false" />
+      </section>
+    </main>
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue'
-import Sidebar from '@/components/Sidebar.vue'
-import UploadModal from '@/components/UploadModal.vue'
-import { Upload, Send, Edit, Trash2 } from 'lucide-vue-next'
-import dayjs from 'dayjs'
-
-// Dummy data
-const marketplaces = ref(['Shopee', 'Tokopedia', 'Lazada'])
-const accounts = ref(['TokoA', 'TokoB', 'TokoC'])
-
-const selectedMarketplace = ref('')
-const selectedAccount = ref('')
-const selectedMonth = ref('')
-const selectedYear = ref('')
-const showUploadModal = ref(false)
-
-const months = ref([
-  { name: 'Januari', value: '01' },
-  { name: 'Februari', value: '02' },
-  { name: 'Maret', value: '03' },
-  { name: 'April', value: '04' },
-  { name: 'Mei', value: '05' },
-  { name: 'Juni', value: '06' },
-  { name: 'Juli', value: '07' },
-  { name: 'Agustus', value: '08' },
-  { name: 'September', value: '09' },
-  { name: 'Oktober', value: '10' },
-  { name: 'November', value: '11' },
-  { name: 'Desember', value: '12' },
-])
-
-const years = ref([])
-const dataTable = ref([])
-
-const openUpload = () => {
-  showUploadModal.value = true
-}
-
-const submitData = () => {
-  alert('Data dikirim!')
-}
-
-const editRow = (index) => {
-  alert('Edit baris ke-' + (index + 1))
-}
-
-const deleteRow = (index) => {
-  if (confirm('Yakin ingin menghapus baris ini?')) {
-    dataTable.value.splice(index, 1)
-  }
-}
-
-const formatDate = (dateStr) => {
-  return dayjs(dateStr).format('DD/MM/YYYY HH:mm:ss')
-}
-
-onMounted(() => {
-  const now = new Date()
-  selectedMonth.value = String(now.getMonth() + 1).padStart(2, '0')
-  selectedYear.value = String(now.getFullYear())
-
-  for (let y = 2024; y <= 2034; y++) {
-    years.value.push(String(y))
-  }
-
-  // Contoh dummy data
-  dataTable.value = [
-    {
-      tanggal: new Date(),
-      nomorPO: 'PO123456',
-      marketplace: 'Shopee',
-      akun: 'TokoA',
-      status: 'Valid',
+<script>
+export default {
+  name: 'DataMarketplace',
+  data() {
+    return {
+      selectedMarketplace: '',
+      selectedAkun: '',
+      selectedBulan: '',
+      selectedTahun: '',
+      nomorPO: 'POTK325052301',
+      marketplaces: ['Shopee', 'Tokopedia', 'Lazada'],
+      akunToko: ['Toko A', 'Toko B', 'Toko C'],
+      bulanList: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+      tahunList: Array.from({ length: 11 }, (_, i) => 2024 + i),
+      rows: [
+        {
+          nomorPO: '240412FSD8YU123',
+          awb: 'JPX146123568',
+          tglOrder: '24/05/2025 10:30',
+          skuProduk: '101001 SCH...',
+          namaProduk: '101001 SCH Sticker Case ...',
+          varian: '108 Pcs (Col..',
+          qty: 1,
+          skuReal: '101001'
+        }
+      ]
+    };
+  },
+  computed: {
+    tanggal() {
+      const now = new Date();
+      return now.toLocaleDateString('id-ID');
     },
-    {
-      tanggal: new Date(),
-      nomorPO: 'PO654321',
-      marketplace: 'Tokopedia',
-      akun: 'TokoB',
-      status: 'Invalid',
+    waktu() {
+      const now = new Date();
+      return now.toLocaleTimeString('id-ID');
     },
-  ]
-})
+    summaryText() {
+      const total = this.rows.length;
+      const sku = new Set(this.rows.map(r => r.skuProduk)).size;
+      const error = 0; // Placeholder
+      return `${total} Pesanan - ${sku} SKU Produk - ${error} SKU Error`;
+    }
+  },
+  methods: {
+    openUploadModal() {
+      alert('Upload modal dibuka');
+    },
+    kirimData() {
+      alert('Data dikirim');
+    }
+  }
+};
 </script>
 
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Lexend&display=swap');
+<style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;800&display=swap');
 
-.font-lexend {
+.font-Lexend {
   font-family: 'Lexend', sans-serif;
-}
-
-.select {
-  @apply px-2 py-1 border rounded text-sm;
-}
-
-.btn-primary {
-  @apply inline-flex items-center px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm;
-}
-
-.btn-green {
-  @apply inline-flex items-center px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm;
 }
 </style>

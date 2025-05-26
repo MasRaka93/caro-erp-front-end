@@ -1,16 +1,13 @@
 <template>
   <div class="flex min-h-screen bg-white text-black">
     <!-- Sidebar -->
-    <Sidebar />
+    <Sidebar :isSidebarOpen/>
 
     <!-- Main Content -->
     <main class="flex-1 p-4 sm:p-8 max-w-[1400px] mx-auto sm:ml-[80px]">
       <!-- Header -->
       <div class="flex justify-between items-center mb-6">
         <h1 class="font-bold text-xl sm:text-2xl font-bold-inter">DATA MARKETPLACE</h1>
-        <button class="md:hidden" @click="toggleSidebar">
-          <i class="fas fa-bars text-xl"></i>
-        </button>
       </div>
 
       <!-- Dropdown Filters -->

@@ -117,6 +117,7 @@
 import { ref, computed, onMounted } from 'vue';
 import Sidebar from '@/components/Sidebar.vue';
 import UploadModal from '@/components/UploadModal.vue';
+import { UAParser } from "ua-parser-js"; // Import UAParser
  
 
 const isSidebarOpen = ref(true);
@@ -174,20 +175,19 @@ const countSKUError = computed(() => tableData.value.filter(d => d.skuReal === '
 // -------------------- FETCH DATA FROM APPSCRIPT --------------------
 const fetchMarketplaceData = async () => {
   try {
-    // Ambil token dan device dari localStorage
-    const token = localStorage.getItem('token'); // Ganti 'token' dengan key yang sesuai
-    const device = localStorage.getItem('device'); // Ganti 'device' dengan key yang sesuai
- 
-
-    // Cek apakah token dan device ada
-    if (!token || !device) {
-      console.error('Token atau device tidak ditemukan di localStorage');
+    const token = localStorage.getItem("auth_token"); // Ambil token dari localStorage
+    if (!token) {
+      console.error('Token tidak ditemukan di localStorage');
       return;
     }
  
 
-    // Tambahkan token dan device ke URL
-    const res = await fetch(`${import.meta.env.VITE_SCRIPT_URL}?mode=db_toko&token=${token}&device=${device}`);
+    const parser = new UAParser();
+    const ua = parser.getResult();
+    const device = `${ua.device.vendor || "Unknown"} - ${ua.browser.name} ${ua.browser.version}`;
+ 
+
+    const res = await fetch(`${import.meta.env.VITE_SCRIPT_URL}?mode=db_toko&token=${token}&device=${encodeURIComponent(device)}`);
     const data = await res.json();
     console.log('Respons API:', data); // Log respons untuk debugging
  

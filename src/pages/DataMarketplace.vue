@@ -108,19 +108,15 @@ import { ref, computed, onMounted } from 'vue';
 import Sidebar from '@/components/Sidebar.vue';
 import UploadModal from '@/components/UploadModal.vue';
 
-// State variables
 const currentDate = ref('');
 const currentTime = ref('');
 const selectedMarketplace = ref('');
 const selectedAkunToko = ref('');
 const selectedMonth = ref(new Date().toLocaleString('default', { month: 'long' }));
 const selectedYear = ref(new Date().getFullYear());
-const marketplaces = ref([]); // To be populated from DB_Toko
+const marketplaces = ref([]);
 const akunTokoOptions = ref([]);
-const bulanOptions = ref([
-  'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-]);
+const bulanOptions = ref(['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']);
 const tahunOptions = ref(Array.from({ length: 11 }, (_, i) => 2024 + i));
 
 const showUploadModal = ref(false);
@@ -128,60 +124,115 @@ const tableData = ref([]);
 const currentPage = ref(1);
 const itemsPerPage = 25;
 
-// Computed properties
-const uniqueMarketplaces = computed(() => {
-  // Logic to fetch unique marketplaces from DB_Toko
-  return [...new Set(marketplaces.value)];
-});
+const idToko = ref('');
+const linkTarget = ref('');
+const nomorUrut = ref('01');
 
-const filteredAkunTokoOptions = computed(() => {
-  return akunTokoOptions.value.filter(toko => toko.marketplace === selectedMarketplace.value);
-});
-
+// Computed
+const uniqueMarketplaces = computed(() => [...new Set(marketplaces.value)]);
+const filteredAkunTokoOptions = computed(() =>
+  akunTokoOptions.value
+    .filter(t => t.marketplace === selectedMarketplace.value)
+    .map(t => t.akun)
+);
 const paginatedData = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
   return tableData.value.slice(start, start + itemsPerPage);
 });
-
 const endIndex = computed(() => currentPage.value * itemsPerPage);
 const totalPages = computed(() => Math.ceil(tableData.value.length / itemsPerPage));
-
 const canUpload = computed(() => selectedMarketplace.value && selectedAkunToko.value && selectedMonth.value && selectedYear.value);
 const canSubmit = computed(() => canUpload.value && tableData.value.length > 0);
 
 const generatedPO = computed(() => {
-  const idToko = 'TK123'; // Dummy, should be replaced with actual ID from DB_Toko
-  const today = new Date();
-  const ymd = today.toISOString().slice(2, 10).replace(/-/g, '');
-  const nomorUrut = '01'; // Logic to fetch the current order number
-  return `PO${idToko}${ymd}${nomorUrut}`;
+  if (!idToko.value) return '';
+  const date = new Date();
+  const yymmdd = date.toISOString().slice(2, 10).replace(/-/g, '');
+  return `PO${idToko.value}${yymmdd}${nomorUrut.value}`;
 });
-
 const countSKU = computed(() => tableData.value.length);
 const countSKUError = computed(() => tableData.value.filter(d => d.skuReal === '').length);
 
-// Methods
-const handleUploadedFile = (rows) => {
-  tableData.value = rows;
-  validateData(rows);
-};
+// -------------------- FETCH DATA FROM APPSCRIPT --------------------
 
-const validateData = (rows) => {
-  // Logic to validate data and set statusClass for each row
+const fetchMarketplaceData = async () => {
+  const res = await fetch(import.meta.env.VITE_SCRIPT_URL + '?mode=db_toko');
+  const data = await res.json();
+  marketplaces.value = [...new Set(data.map(row => row.marketplace))];
+  akunTokoOptions.value = data.map(row => ({ marketplace: row.marketplace, akun: row.akun, bulan: row.bulan, tahun: row.tahun, idToko: row.id, link: row.link }));
 };
 
 const onMarketplaceChange = () => {
-  // Logic to fetch akunTokoOptions based on selectedMarketplace
-  // This should also update the linkTarget and idToko based on the selected values
+  const filtered = akunTokoOptions.value.find(row =>
+    row.marketplace === selectedMarketplace.value &&
+    row.akun === selectedAkunToko.value &&
+    row.bulan === selectedMonth.value &&
+    row.tahun === selectedYear.value.toString()
+  );
+  if (filtered) {
+    idToko.value = filtered.idToko;
+    linkTarget.value = filtered.link;
+  }
 };
 
+// -------------------- HANDLE FILE UPLOAD --------------------
+
+const handleUploadedFile = async (rows) => {
+  tableData.value = rows.map(row => ({
+    ...row,
+    skuReal: '',
+    statusClass: ''
+  }));
+  await validateData();
+};
+
+const validateData = async () => {
+  const skuRes = await fetch(import.meta.env.VITE_SCRIPT_URL + '?mode=db_produk');
+  const skuData = await skuRes.json();
+  const validSKUList = skuData.map(r => r.sku);
+
+  const today = new Date().toLocaleDateString('id-ID');
+
+  tableData.value = tableData.value.map(row => {
+    const skuReal = row['SKU Produk'] ? row['SKU Produk'].toString().trim().toUpperCase() : '';
+    const po = row['No PO Marketplace'];
+    const awb = row['No AWB'];
+    const status = {};
+
+    // Status warna
+    if (!skuReal) {
+      status.statusClass = 'bg-yellow-100';
+    } else if (!validSKUList.includes(skuReal)) {
+      status.statusClass = 'bg-green-100';
+    } else {
+      status.statusClass = '';
+    }
+
+    // (Contoh pengecekan duplikat bisa ditambahkan jika ingin cek ke spreadsheet)
+
+    return {
+      poMarketplace: po,
+      awb: awb,
+      tgl: row['Tanggal Order'],
+      sku: row['SKU Produk'],
+      nama: row['Nama Produk'],
+      varian: row['Varian'],
+      qty: row['Qty'],
+      skuReal,
+      statusClass: status.statusClass
+    };
+  });
+};
+
+// -------------------- INIT --------------------
 onMounted(() => {
   const now = new Date();
   currentDate.value = now.toLocaleDateString('id-ID');
   currentTime.value = now.toLocaleTimeString('id-ID', { hour12: false });
-  // Fetch marketplaces from DB_Toko here
+  fetchMarketplaceData();
 });
 </script>
+
 
 <style scoped>
 @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css");

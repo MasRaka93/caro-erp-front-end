@@ -6,80 +6,82 @@
       class="md:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-white shadow-lg focus:outline-none"
       aria-label="Toggle sidebar"
     >
-      <svg class="w-8 h-8 text-black" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+      <svg
+        class="w-8 h-8 text-black"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        viewBox="0 0 24 24"
+      >
         <line x1="3" y1="12" x2="21" y2="12" />
         <line x1="3" y1="6" x2="21" y2="6" />
         <line x1="3" y1="18" x2="21" y2="18" />
       </svg>
     </button>
+ 
+ 
 
-    <!-- Overlay -->
-    <div
-      id="overlay"
-      class="fixed inset-0 bg-black bg-opacity-30 z-30 md:hidden"
-      v-show="isSidebarOpen"
-      @click="closeSidebar"
-    ></div>
+    <!-- Overlay for Mobile when sidebar is open -->
+    <transition name="fade">
+      <div
+        v-if="isSidebarOpen"
+        class="fixed inset-0 bg-black bg-opacity-30 z-30 md:hidden"
+        @click="closeSidebar"
+      ></div>
+    </transition>
+ 
+ 
 
     <!-- Sidebar -->
     <aside
-      id="sidebar"
-      class="fixed top-0 left-0 z-40 h-full bg-gray-100 flex flex-col justify-between px-6 py-8 w-64 md:w-16 md:hover:w-72 transition-all duration-300 transform"
-      :class="{'-translate-x-full': !isSidebarOpen, 'translate-x-0': isSidebarOpen}"
+      :class="[
+        'fixed top-0 left-0 z-40 h-full bg-gray-100 flex flex-col justify-between px-6 py-8 w-64 md:w-16 md:hover:w-72 transition-all duration-300 transform',
+        { '-translate-x-full': !isSidebarOpen }
+      ]"
       aria-label="Sidebar navigation"
+      @mouseenter="onMouseEnter"
+      @mouseleave="onMouseLeave"
     >
-      <!-- Profile -->
+      <!-- Profile section -->
       <div>
         <div class="flex items-center space-x-0 md:space-x-4 mb-12">
           <img
             :src="profilePictureUrl"
             alt="Profile picture"
-            class="rounded-full object-cover profile-img"
-            id="profileImg"
+            class="rounded-full object-cover profile-img w-12 h-12"
             @error="handleImageError"
           />
-          <div class="profile-text hidden md:block md:group-hover:block">
+          <div v-if="expanded" class="profile-text">
             <h1 class="text-black font-semibold text-lg leading-tight">{{ userProfile.nickname }}</h1>
             <p class="text-xs text-gray-700 leading-tight">{{ userProfile.role }}</p>
           </div>
         </div>
+ 
+ 
 
-        <!-- Navigation -->
+        <!-- Navigation Menu -->
         <nav class="space-y-6" aria-label="Main navigation">
-          <a href="/data-marketplace" class="flex items-center space-x-3 text-gray-700 hover:text-sky-600 transition-colors duration-200">
-            <i class="fas fa-file-alt fa-lg w-6 text-center"></i>
-            <span class="label-text">Data Marketplace</span>
-          </a>
-          <a href="#" class="flex items-center space-x-3 text-gray-700 hover:text-sky-600 transition-colors duration-200">
-            <i class="fas fa-barcode fa-lg w-6 text-center"></i>
-            <span class="label-text">Scan AWB</span>
-          </a>
-          <a href="#" class="flex items-center space-x-3 text-gray-700 hover:text-sky-600 transition-colors duration-200">
-            <i class="fas fa-shopping-cart fa-lg w-6 text-center"></i>
-            <span class="label-text">Belanja Produk</span>
-          </a>
-          <a href="#" class="flex items-center space-x-3 text-gray-700 hover:text-sky-600 transition-colors duration-200">
-            <i class="fas fa-check-circle fa-lg w-6 text-center"></i>
-            <span class="label-text">Success</span>
-          </a>
-          <a href="#" class="flex items-center space-x-3 text-gray-700 hover:text-sky-600 transition-colors duration-200">
-            <i class="fas fa-undo-alt fa-lg w-6 text-center"></i>
-            <span class="label-text">Retur / Cancel</span>
-          </a>
-          <a href="#" class="flex items-center space-x-3 text-gray-700 hover:text-sky-600 transition-colors duration-200">
-            <i class="fas fa-clipboard-list fa-lg w-6 text-center"></i>
-            <span class="label-text">Laporan</span>
-          </a>
-          <a href="#" class="flex items-center space-x-3 text-gray-700 hover:text-sky-600 transition-colors duration-200">
-            <i class="fas fa-cog fa-lg w-6 text-center"></i>
-            <span class="label-text">Pengaturan</span>
-          </a>
+          <SidebarLink to="/data-marketplace" icon="fas fa-file-alt" label="Data Marketplace" />
+          <SidebarLink to="/scan-awb" icon="fas fa-barcode" label="Scan AWB" />
+          <SidebarLink to="/belanja-produk" icon="fas fa-shopping-cart" label="Belanja Produk" />
+          <SidebarLink to="/success" icon="fas fa-check-circle" label="Success" />
+          <SidebarLink to="/retur-cancel" icon="fas fa-undo-alt" label="Retur / Cancel" />
+          <SidebarLink to="/laporan" icon="fas fa-clipboard-list" label="Laporan" />
+          <SidebarLink to="/pengaturan" icon="fas fa-cog" label="Pengaturan" />
         </nav>
       </div>
+ 
+ 
 
       <!-- Footer -->
       <div class="footer-container">
-        <button id="logoutBtn" class="logout-btn bg-sky-400 text-white font-semibold text-sm rounded-md px-6 py-2 w-full max-w-[160px] mt-6" @click="logout">
+        <button
+          id="logoutBtn"
+          class="logout-btn bg-sky-400 text-white font-semibold text-sm rounded-md px-6 py-2 w-full max-w-[160px] mt-6"
+          @click="logout"
+        >
           Logout
         </button>
         <img src="https://i.imgur.com/dQV51zd.png" alt="Logo icon" class="logo-minimized" />
@@ -88,12 +90,25 @@
     </aside>
   </div>
 </template>
+ 
+ 
 
 <script>
+import SidebarLink from '@/components/SidebarLink.vue';
+ 
+ 
+
 export default {
+  components: { SidebarLink },
+  props: {
+    isSidebarOpen: {
+      type: Boolean,
+      default: false,
+    },
+  },
   data() {
     return {
-      isSidebarOpen: false,
+      expanded: false,
       userProfile: {
         nickname: '',
         role: '',
@@ -119,23 +134,40 @@ export default {
   },
   methods: {
     toggleSidebar() {
-      this.isSidebarOpen = !this.isSidebarOpen;
+      this.$emit('toggle');
     },
     closeSidebar() {
-      this.isSidebarOpen = false;
+      this.$emit('toggle', false);
+    },
+    onMouseEnter() {
+      if (window.innerWidth >= 768) {
+        this.expanded = true;
+      }
+    },
+    onMouseLeave() {
+      if (window.innerWidth >= 768) {
+        this.expanded = false;
+      }
     },
     handleImageError(event) {
       event.target.src = this.defaultProfileImage;
     },
+ 
+ 
+
     async logout() {
       const token = localStorage.getItem('auth_token');
-      const user = JSON.parse(localStorage.getItem('auth_user'));
+      const user = JSON.parse(localStorage.getItem('auth_user') || '{}');
       const device = navigator.userAgent;
+ 
+ 
 
       try {
         const ipData = await fetch('https://ipapi.co/json').then(res => res.json());
         const ip = ipData.ip || 'Unknown';
         const location = `${ipData.city}, ${ipData.region}, ${ipData.country_name}`;
+ 
+ 
 
         await fetch(`${import.meta.env.VITE_SCRIPT_URL}?action=logout`, {
           method: 'POST',
@@ -148,18 +180,89 @@ export default {
             location,
           }),
         });
+ 
+ 
 
         localStorage.removeItem('auth_token');
         localStorage.removeItem('auth_user');
         this.$router.push('/');
       } catch (err) {
         console.error('Logout failed:', err);
+        alert('Gagal logout, coba lagi.');
       }
     },
   },
 };
 </script>
+ 
+ 
 
 <style scoped>
-/* Tidak diubah. Semua style tetap seperti yang kamu desain. */
+/* Sidebar Transitions */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+ 
+ 
+
+.profile-img {
+  width: 48px;
+  height: 48px;
+}
+ 
+ 
+
+.footer-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+ 
+ 
+
+/* Logos - show/hide on expand/collapse */
+.logo-minimized {
+  width: 40px;
+  margin-top: 10px;
+  display: block;
+}
+ 
+ 
+
+.logo-expanded {
+  width: 120px;
+  margin-top: 10px;
+  display: none;
+}
+ 
+ 
+
+aside:hover .logo-expanded,
+aside:hover .logo-minimized {
+  display: block;
+}
+ 
+ 
+
+aside:hover .logo-minimized {
+  display: none;
+}
+ 
+ 
+
+/* Logout Button */
+.logout-btn {
+  cursor: pointer;
+}
+ 
+ 
+
+/* SidebarLink styling will be from SidebarLink component */
 </style>
+ 
+ 

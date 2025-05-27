@@ -6,31 +6,8 @@
       class="md:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-white shadow-lg focus:outline-none"
       aria-label="Toggle sidebar"
     >
-      <svg
-        class="w-8 h-8 text-black"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        viewBox="0 0 24 24"
-      >
-        <line x1="3" y1="12" x2="21" y2="12" />
-        <line x1="3" y1="6" x2="21" y2="6" />
-        <line x1="3" y1="18" x2="21" y2="18" />
-      </svg>
+      <font-awesome-icon icon="bars" />
     </button>
- 
- 
-
-    <!-- Overlay for Mobile when sidebar is open -->
-    <transition name="fade">
-      <div
-        v-if="isSidebarOpen"
-        class="fixed inset-0 bg-black bg-opacity-30 z-30 md:hidden"
-        @click="closeSidebar"
-      ></div>
-    </transition>
  
  
 
@@ -41,8 +18,6 @@
         { '-translate-x-full': !isSidebarOpen }
       ]"
       aria-label="Sidebar navigation"
-      @mouseenter="onMouseEnter"
-      @mouseleave="onMouseLeave"
     >
       <!-- Profile section -->
       <div>
@@ -63,13 +38,13 @@
 
         <!-- Navigation Menu -->
         <nav class="space-y-6" aria-label="Main navigation">
-          <SidebarLink to="/data-marketplace" icon="fas fa-file-alt" label="Data Marketplace" />
-          <SidebarLink to="/scan-awb" icon="fas fa-barcode" label="Scan AWB" />
-          <SidebarLink to="/belanja-produk" icon="fas fa-shopping-cart" label="Belanja Produk" />
-          <SidebarLink to="/success" icon="fas fa-check-circle" label="Success" />
-          <SidebarLink to="/retur-cancel" icon="fas fa-undo-alt" label="Retur / Cancel" />
-          <SidebarLink to="/laporan" icon="fas fa-clipboard-list" label="Laporan" />
-          <SidebarLink to="/pengaturan" icon="fas fa-cog" label="Pengaturan" />
+          <SidebarLink to="/data-marketplace" icon="file-alt" label="Data Marketplace" />
+          <SidebarLink to="/scan-awb" icon="barcode" label="Scan AWB" />
+          <SidebarLink to="/belanja-produk" icon="shopping-cart" label="Belanja Produk" />
+          <SidebarLink to="/success" icon="check-circle" label="Success" />
+          <SidebarLink to="/retur-cancel" icon="undo-alt" label="Retur / Cancel" />
+          <SidebarLink to="/laporan" icon="clipboard-list" label="Laporan" />
+          <SidebarLink to="/pengaturan" icon="cog" label="Pengaturan" />
         </nav>
       </div>
  
@@ -94,12 +69,13 @@
  
 
 <script>
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import SidebarLink from '@/components/SidebarLink.vue';
  
  
 
 export default {
-  components: { SidebarLink },
+  components: { SidebarLink, FontAwesomeIcon },
   props: {
     isSidebarOpen: {
       type: Boolean,
@@ -152,9 +128,6 @@ export default {
     handleImageError(event) {
       event.target.src = this.defaultProfileImage;
     },
- 
- 
-
     async logout() {
       const token = localStorage.getItem('auth_token');
       const user = JSON.parse(localStorage.getItem('auth_user') || '{}');
@@ -264,5 +237,3 @@ aside:hover .logo-minimized {
 
 /* SidebarLink styling will be from SidebarLink component */
 </style>
- 
- 

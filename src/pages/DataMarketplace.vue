@@ -1,13 +1,16 @@
 <template>
   <div class="flex min-h-screen bg-white text-black">
     <!-- Sidebar -->
-    <Sidebar :isSidebarOpen="true" />
+    <Sidebar :isSidebarOpen="isSidebarOpen" @toggle="toggleSidebar" />
+&nbsp;
+&nbsp;
 
     <!-- Main Content -->
     <main class="flex-1 p-4 sm:p-8 max-w-[1400px] mx-auto sm:ml-[80px]">
       <!-- Header -->
       <div class="flex justify-between items-center mb-6">
-        <h1 class="font-bold text-xl sm:text-2xl font-bold-inter">DATA MARKETPLACE</h1>
+        <h1 class="font-bold text-xl sm:text-2xl font-bold-inter flex-1">DATA MARKETPLACE</h1>
+        <div class="md:hidden w-10"></div>
       </div>
 
       <!-- Dropdown Filters -->
@@ -43,10 +46,10 @@
           {{ tableData.length }} Pesanan - {{ countSKU }} SKU Produk - {{ countSKUError }} SKU Error
         </p>
         <div class="flex gap-4 flex-wrap sm:flex-nowrap">
-          <button class="action-button" :disabled="!canUpload" @click="showUploadModal = true">
+          <button class="action-button" :disabled="!canUpload" @click="openUploadModal">
             <span>Unggah Data</span><i class="fas fa-upload"></i>
           </button>
-          <button class="action-button" :disabled="!canSubmit">
+          <button class="action-button" :disabled="!canSubmit" @click="submitData">
             <span>Kirim Data</span><i class="fas fa-paper-plane"></i>
           </button>
         </div>
@@ -90,15 +93,15 @@
 
       <!-- Pagination -->
       <nav class="mt-4 flex justify-center gap-2 text-sm sm:text-base select-none" aria-label="Pagination">
-        <button class="nav-btn" @click="currentPage = 1"><<</button>
-        <button class="nav-btn" @click="currentPage--" :disabled="currentPage <= 1"><</button>
+        <button class="nav-btn" @click="goToPage(1)" :disabled="currentPage === 1"><<</button>
+        <button class="nav-btn" @click="goToPage(currentPage - 1)" :disabled="currentPage <= 1"><</button>
         <span class="px-2 py-1">Page {{ currentPage }}</span>
-        <button class="nav-btn" @click="currentPage++" :disabled="endIndex >= tableData.length">></button>
-        <button class="nav-btn" @click="currentPage = totalPages">>></button>
+        <button class="nav-btn" @click="goToPage(currentPage + 1)" :disabled="currentPage >= totalPages">></button>
+        <button class="nav-btn" @click="goToPage(totalPages)" :disabled="currentPage === totalPages">>></button>
       </nav>
 
       <!-- Upload Modal -->
-      <UploadModal v-if="showUploadModal" @close="showUploadModal = false" @uploaded="handleUploadedFile" />
+      <UploadModal v-if="showUploadModal" @close="closeUploadModal" @uploaded="handleUploadedFile" />
     </main>
   </div>
 </template>
@@ -107,6 +110,8 @@
 import { ref, computed, onMounted } from 'vue';
 import Sidebar from '@/components/Sidebar.vue';
 import UploadModal from '@/components/UploadModal.vue';
+
+const isSidebarOpen = ref(true);
 
 const currentDate = ref('');
 const currentTime = ref('');
@@ -154,12 +159,15 @@ const countSKU = computed(() => tableData.value.length);
 const countSKUError = computed(() => tableData.value.filter(d => d.skuReal === '').length);
 
 // -------------------- FETCH DATA FROM APPSCRIPT --------------------
-
 const fetchMarketplaceData = async () => {
-  const res = await fetch(import.meta.env.VITE_SCRIPT_URL + '?mode=db_toko');
-  const data = await res.json();
-  marketplaces.value = [...new Set(data.map(row => row.marketplace))];
-  akunTokoOptions.value = data.map(row => ({ marketplace: row.marketplace, akun: row.akun, bulan: row.bulan, tahun: row.tahun, idToko: row.id, link: row.link }));
+  try {
+    const res = await fetch(import.meta.env.VITE_SCRIPT_URL + '?mode=db_toko');
+    const data = await res.json();
+    marketplaces.value = [...new Set(data.map(row => row.marketplace))];
+    akunTokoOptions.value = data.map(row => ({ marketplace: row.marketplace, akun: row.akun, bulan: row.bulan, tahun: row.tahun, idToko: row.id, link: row.link }));
+  } catch (error) {
+    console.error('Error fetching marketplace data:', error);
+  }
 };
 
 const onMarketplaceChange = () => {
@@ -172,56 +180,109 @@ const onMarketplaceChange = () => {
   if (filtered) {
     idToko.value = filtered.idToko;
     linkTarget.value = filtered.link;
+  } else {
+    idToko.value = '';
+    linkTarget.value = '';
   }
 };
 
 // -------------------- HANDLE FILE UPLOAD --------------------
 
+const openUploadModal = () => {
+  showUploadModal.value = true;
+};
+const closeUploadModal = () => {
+  showUploadModal.value = false;
+};
+
 const handleUploadedFile = async (rows) => {
+  showUploadModal.value = false;
   tableData.value = rows.map(row => ({
     ...row,
     skuReal: '',
     statusClass: ''
   }));
   await validateData();
+  currentPage.value = 1; // Reset to first page
 };
 
 const validateData = async () => {
-  const skuRes = await fetch(import.meta.env.VITE_SCRIPT_URL + '?mode=db_produk');
-  const skuData = await skuRes.json();
-  const validSKUList = skuData.map(r => r.sku);
+  try {
+    const skuRes = await fetch(import.meta.env.VITE_SCRIPT_URL + '?mode=db_produk');
+    const skuData = await skuRes.json();
+    const validSKUList = skuData.map(r => r.sku);
 
-  const today = new Date().toLocaleDateString('id-ID');
+    tableData.value = tableData.value.map(row => {
+      const skuReal = row['SKU Produk'] ? row['SKU Produk'].toString().trim().toUpperCase() : '';
+      const po = row['No PO Marketplace'];
+      const awb = row['No AWB'];
 
-  tableData.value = tableData.value.map(row => {
-    const skuReal = row['SKU Produk'] ? row['SKU Produk'].toString().trim().toUpperCase() : '';
-    const po = row['No PO Marketplace'];
-    const awb = row['No AWB'];
-    const status = {};
+      // Status warna
+      let statusClass = '';
+      if (!skuReal) {
+        statusClass = 'bg-yellow-100'; // SKU Real kosong / error
+      } else if (!validSKUList.includes(skuReal)) {
+        statusClass = 'bg-green-100'; // SKU Real tidak terdaftar
+      }
 
-    // Status warna
-    if (!skuReal) {
-      status.statusClass = 'bg-yellow-100';
-    } else if (!validSKUList.includes(skuReal)) {
-      status.statusClass = 'bg-green-100';
+      return {
+        poMarketplace: po,
+        awb: awb,
+        tgl: row['Tanggal Order'],
+        sku: row['SKU Produk'],
+        nama: row['Nama Produk'],
+        varian: row['Varian'],
+        qty: row['Qty'],
+        skuReal,
+        statusClass,
+      };
+    });
+  } catch (error) {
+    console.error('Error validating data:', error);
+    alert('Gagal memvalidasi data.');
+  }
+};
+
+// -------------------- HANDLE SUBMIT DATA --------------------
+const submitData = async () => {
+  if (!canSubmit.value) {
+    alert('Lengkapi filter dan unggah data terlebih dahulu.');
+    return;
+  }
+  if (!confirm('Yakin ingin mengirim data?')) return;
+
+  try {
+    const response = await fetch(import.meta.env.VITE_SCRIPT_URL + '?action=submit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        marketplace: selectedMarketplace.value,
+        akunToko: selectedAkunToko.value,
+        bulan: selectedMonth.value,
+        tahun: selectedYear.value,
+        data: tableData.value,
+      }),
+    });
+    if (response.ok) {
+      alert('Data berhasil dikirim!');
+      tableData.value = [];
+      currentPage.value = 1;
     } else {
-      status.statusClass = '';
+      alert('Gagal mengirim data.');
     }
+  } catch (error) {
+    console.error('Submit data error:', error);
+    alert('Terjadi kesalahan saat mengirim data.');
+  }
+};
 
-    // (Contoh pengecekan duplikat bisa ditambahkan jika ingin cek ke spreadsheet)
-
-    return {
-      poMarketplace: po,
-      awb: awb,
-      tgl: row['Tanggal Order'],
-      sku: row['SKU Produk'],
-      nama: row['Nama Produk'],
-      varian: row['Varian'],
-      qty: row['Qty'],
-      skuReal,
-      statusClass: status.statusClass
-    };
-  });
+// -------------------- PAGINATION --------------------
+const goToPage = (page) => {
+  if (page < 1) page = 1;
+  if (page > totalPages.value) page = totalPages.value;
+  currentPage.value = page;
 };
 
 // -------------------- INIT --------------------
@@ -232,7 +293,6 @@ onMounted(() => {
   fetchMarketplaceData();
 });
 </script>
-
 
 <style scoped>
 @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css");
@@ -260,5 +320,11 @@ onMounted(() => {
 }
 .nav-btn {
   @apply font-bold p-1 sm:p-2 hover:text-sky-600 transition-colors;
+}
+.bg-yellow-100 {
+  background-color: #fef3c7;
+}
+.bg-green-100 {
+  background-color: #dcfce7;
 }
 </style>

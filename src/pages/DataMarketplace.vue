@@ -2,9 +2,6 @@
   <div class="flex min-h-screen bg-white text-black">
     <!-- Sidebar -->
     <Sidebar :isSidebarOpen="isSidebarOpen" @toggle="toggleSidebar" />
-     
-     
- 
  
 
     <!-- Main Content -->
@@ -14,7 +11,6 @@
         <h1 class="font-bold text-xl sm:text-2xl font-bold-inter flex-1">DATA MARKETPLACE</h1>
         <div class="md:hidden w-10"></div>
       </div>
- 
  
 
       <!-- Dropdown Filters -->
@@ -34,7 +30,6 @@
           <option v-for="tahun in tahunOptions" :key="tahun" :value="tahun">{{ tahun }}</option>
         </select>
  
- 
 
         <!-- Tanggal & Waktu -->
         <div class="ml-auto flex items-center space-x-4 text-xs sm:text-sm text-black whitespace-nowrap">
@@ -42,12 +37,10 @@
           <span>{{ currentTime }}</span>
         </div>
  
- 
 
         <!-- PO Otomatis -->
         <input type="text" readonly :value="generatedPO" class="order-id-input" />
       </section>
- 
  
 
       <!-- Summary & Buttons -->
@@ -64,7 +57,6 @@
           </button>
         </div>
       </section>
- 
  
 
       <!-- Table -->
@@ -103,7 +95,6 @@
         </table>
       </section>
  
- 
 
       <!-- Pagination -->
       <nav class="mt-4 flex justify-center gap-2 text-sm sm:text-base select-none" aria-label="Pagination">
@@ -114,7 +105,6 @@
         <button class="nav-btn" @click="goToPage(totalPages)" :disabled="currentPage === totalPages">>></button>
       </nav>
  
- 
 
       <!-- Upload Modal -->
       <UploadModal v-if="showUploadModal" @close="closeUploadModal" @uploaded="handleUploadedFile" />
@@ -122,17 +112,14 @@
   </div>
 </template>
  
- 
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import Sidebar from '@/components/Sidebar.vue';
 import UploadModal from '@/components/UploadModal.vue';
  
- 
 
 const isSidebarOpen = ref(true);
- 
  
 
 const currentDate = ref('');
@@ -146,19 +133,16 @@ const akunTokoOptions = ref([]);
 const bulanOptions = ref(['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']);
 const tahunOptions = ref(Array.from({ length: 11 }, (_, i) => 2024 + i));
  
- 
 
 const showUploadModal = ref(false);
 const tableData = ref([]);
 const currentPage = ref(1);
 const itemsPerPage = 25;
  
- 
 
 const idToko = ref('');
 const linkTarget = ref('');
 const nomorUrut = ref('01');
- 
  
 
 // Computed
@@ -172,11 +156,9 @@ const paginatedData = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
   return tableData.value.slice(start, start + itemsPerPage);
 });
-const endIndex = computed(() => currentPage.value * itemsPerPage);
 const totalPages = computed(() => Math.ceil(tableData.value.length / itemsPerPage));
 const canUpload = computed(() => selectedMarketplace.value && selectedAkunToko.value && selectedMonth.value && selectedYear.value);
 const canSubmit = computed(() => canUpload.value && tableData.value.length > 0);
- 
  
 
 const generatedPO = computed(() => {
@@ -188,20 +170,30 @@ const generatedPO = computed(() => {
 const countSKU = computed(() => tableData.value.length);
 const countSKUError = computed(() => tableData.value.filter(d => d.skuReal === '').length);
  
- 
 
 // -------------------- FETCH DATA FROM APPSCRIPT --------------------
 const fetchMarketplaceData = async () => {
   try {
-    const res = await fetch(import.meta.env.VITE_SCRIPT_URL + '?mode=db_toko');
+    // Ambil token dan device dari localStorage
+    const token = localStorage.getItem('token'); // Ganti 'token' dengan key yang sesuai
+    const device = localStorage.getItem('device'); // Ganti 'device' dengan key yang sesuai
+ 
+
+    // Cek apakah token dan device ada
+    if (!token || !device) {
+      console.error('Token atau device tidak ditemukan di localStorage');
+      return;
+    }
+ 
+
+    // Tambahkan token dan device ke URL
+    const res = await fetch(`${import.meta.env.VITE_SCRIPT_URL}?mode=db_toko&token=${token}&device=${device}`);
     const data = await res.json();
     console.log('Respons API:', data); // Log respons untuk debugging
- 
  
 
     // Cek apakah status sukses dan data ada serta berbentuk array
     if (data.status === 'success' && Array.isArray(data.data)) {
-      // data.data adalah array yang bisa kamu proses dengan .map()
       const marketplacesData = data.data.map(row => ({
         idToko: row.ID_Toko,
         marketplace: row.Marketplace,
@@ -219,7 +211,6 @@ const fetchMarketplaceData = async () => {
     console.error('Error fetching marketplace data:', error);
   }
 };
- 
  
 
 // -------------------- HANDLE MARKETPLACE CHANGE --------------------
@@ -239,7 +230,6 @@ const onMarketplaceChange = () => {
   }
 };
  
- 
 
 // -------------------- HANDLE FILE UPLOAD --------------------
 const openUploadModal = () => {
@@ -248,7 +238,6 @@ const openUploadModal = () => {
 const closeUploadModal = () => {
   showUploadModal.value = false;
 };
- 
  
 
 const handleUploadedFile = async (rows) => {
@@ -262,7 +251,6 @@ const handleUploadedFile = async (rows) => {
   currentPage.value = 1; // Reset to first page
 };
  
- 
 
 const validateData = async () => {
   try {
@@ -270,13 +258,11 @@ const validateData = async () => {
     const skuData = await skuRes.json();
     const validSKUList = skuData.map(r => r.sku);
  
- 
 
     tableData.value = tableData.value.map(row => {
       const skuReal = row['SKU Produk'] ? row['SKU Produk'].toString().trim().toUpperCase() : '';
       const po = row['No PO Marketplace'];
       const awb = row['No AWB'];
- 
  
 
       // Status warna
@@ -286,7 +272,6 @@ const validateData = async () => {
       } else if (!validSKUList.includes(skuReal)) {
         statusClass = 'bg-green-100'; // SKU Real tidak terdaftar
       }
- 
  
 
       return {
@@ -307,7 +292,6 @@ const validateData = async () => {
   }
 };
  
- 
 
 // -------------------- HANDLE SUBMIT DATA --------------------
 const submitData = async () => {
@@ -316,7 +300,6 @@ const submitData = async () => {
     return;
   }
   if (!confirm('Yakin ingin mengirim data?')) return;
- 
  
 
   try {
@@ -346,7 +329,6 @@ const submitData = async () => {
   }
 };
  
- 
 
 // -------------------- PAGINATION --------------------
 const goToPage = (page) => {
@@ -354,7 +336,6 @@ const goToPage = (page) => {
   if (page > totalPages.value) page = totalPages.value;
   currentPage.value = page;
 };
- 
  
 
 // -------------------- INIT --------------------
@@ -366,19 +347,16 @@ onMounted(() => {
 });
 </script>
  
- 
 
 <style scoped>
 @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css");
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap");
- 
  
 
 .font-bold-inter {
   font-family: "Inter", sans-serif;
   font-weight: 700;
 }
- 
  
 
 .filter-select {
